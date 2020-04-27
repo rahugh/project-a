@@ -5,5 +5,15 @@
 </head>
 <body>
     <h1>Project A</h1>
+
+    {% if recalls %}
+    <ul>
+    {% for recall in recalls %}
+        <li>{{ recall.name }} {{ recall.year }}</li>
+    {% endfor %}
+    </ul>
+    {% elif query %}
+    <p>No results found</p>
+    {% endif %}
 </body>
 </html>
