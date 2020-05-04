@@ -6,10 +6,15 @@
 <body>
     <h1>Project A</h1>
 
+    <form>
+        <input name="q" value="{{ query|default('') }}"/>
+        <input type="submit" />
+    </form>
+
     {% if recalls %}
     <ul>
     {% for recall in recalls %}
-        <li>{{ recall.name }} {{ recall.year }}</li>
+        <li>{{ recall.make }} {{ recall.model }} {{ recall.body }} {{ recall.updated_at }}</li>
     {% endfor %}
     </ul>
     {% elif query %}
