@@ -20,14 +20,6 @@ CREATE TABLE model (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE car (
-    id SERIAL PRIMARY KEY,
-    model_id INTEGER REFERENCES model(id) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE account (
     id SERIAL PRIMARY KEY,
     email VARCHAR(200) NOT NULL,
@@ -35,10 +27,14 @@ CREATE TABLE account (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE account_car (
+CREATE TABLE car (
     account_id INTEGER REFERENCES account(id) NOT NULL,
-    car_id INTEGER REFERENCES car(id) NOT NULL,
-    PRIMARY KEY(account_id, car_id)
+    model_id INTEGER REFERENCES model(id) NOT NULL,
+    id SERIAL,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(account_id, model_id, id)
 );
 
 CREATE TABLE recall (
@@ -76,3 +72,5 @@ INSERT INTO recall (model_id, body) VALUES (3, 'Faulty breaks');
 INSERT INTO recall (model_id, body) VALUES (4, 'Faulty seatbelts');
 INSERT INTO recall (model_id, body) VALUES (5, 'Faulty engine');
 INSERT INTO recall (model_id, body) VALUES (6, 'Faulty wheels');
+
+INSERT INTO account (email) VALUES ('test@example.com');

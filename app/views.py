@@ -1,5 +1,8 @@
 from app import app
-from flask import request, render_template
+from flask import request
+from flask import render_template
+from flask import redirect
+from flask import url_for
 from sqlalchemy import create_engine, text
 import os
 
@@ -44,13 +47,61 @@ def admin_recall():
     # post data
     model_id = request.form.get('model', default=0, type=int)
     body = request.form.get('body', default='', type=str)
-    result = False
+
+    # todo: use flash messages
+    success = request.args.get('success', default=-1, type=int)
 
     if (model_id > 0):
         try:
             sql = text("INSERT INTO recall (body, model_id) VALUES (:body, :model_id)")
             result = engine.execute(sql, body=body, model_id=model_id)
+            success = 1
         except:
-            result = False
+            success = 0
 
-    return render_template('admin/recall.html', result=result, models=models)
+        return redirect(url_for('admin_recall', success=success))
+
+    return render_template('admin/recall.html', models=models, success=success)
+
+# todo: add security
+@app.route('/account/car', methods=["POST", "GET"])
+def account_car():
+    engine = create_engine(os.environ['DATABASE_URL'])
+
+    # todo: get account_id from session
+    account_id = 1
+
+    # models for the dropdown
+    sql = """ SELECT m.id, m.name, k.name make
+                   FROM model m, make k
+                   WHERE m.make_id = k.id
+                   ORDER BY k.name, m.name"""
+    models = engine.execute(text(sql)).fetchall()
+
+    # cars list
+    sql = """ SELECT c.id, c.name, m.name model, k.name make
+                   FROM car c, model m, make k
+                   WHERE c.account_id = :account_id
+                   AND c.model_id = m.id
+                   AND m.make_id = k.id
+                   ORDER BY c.name"""
+    cars = engine.execute(text(sql), account_id=account_id).fetchall()
+
+    # post data
+    name = request.form.get('name', default=0, type=str)
+    model_id = request.form.get('model', default=0, type=int)
+
+    # todo: use flash messages
+    success = request.args.get('success', default=-1, type=int)
+
+    if (model_id > 0):
+        try:
+            sql = text("INSERT INTO car (account_id, model_id, name) VALUES (:account_id, :model_id, :name)")
+            engine.execute(sql, name=name, model_id=model_id, account_id=account_id)
+            success = 1
+        except:
+            success = 0
+
+        return redirect(url_for('account_car', success=success))
+
+    return render_template('account/car.html', success=success, models=models, cars=cars)
